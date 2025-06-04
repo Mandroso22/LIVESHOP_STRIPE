@@ -164,7 +164,6 @@ export default function CheckoutPage() {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
@@ -183,7 +182,6 @@ export default function CheckoutPage() {
         parseFloat(formData.amount || "0") + parseFloat(shippingPrice)
       ).toString();
 
-      // Créer la session de paiement via l'API
       const response = await fetch("/api/create-payment", {
         method: "POST",
         headers: {
@@ -216,7 +214,7 @@ export default function CheckoutPage() {
   // Si erreur de configuration Stripe, afficher un message
   if (stripeError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-400 to-stone-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 animate-[shimmer_4s_linear_infinite] flex items-center justify-center">
         <div className="max-w-md mx-auto px-4 py-6 text-center">
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6">
             <h2 className="text-xl font-semibold text-red-400 mb-2">
@@ -229,15 +227,13 @@ export default function CheckoutPage() {
     );
   }
 
-  // Si Stripe n'est pas initialisé, ne pas afficher le composant de paiement
   if (!stripePromise) {
     return null;
   }
 
-  // Si on a un clientSecret, afficher le composant Stripe Embedded Checkout
   if (clientSecret) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-400 to-stone-800">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
         <div className="max-w-md mx-auto px-4 py-6">
           {/* Garder le header */}
           <div className="text-center mb-8">
@@ -293,7 +289,7 @@ export default function CheckoutPage() {
 
   // Sinon, afficher le formulaire normal avec les 3 étapes
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-400 to-stone-800">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 animate-[shimmer_4s_linear_infinite] backdrop-blur-[2px] hover:backdrop-blur-[4px] transition-all duration-500">
       <div className="max-w-md mx-auto px-4 py-6">
         {/* Header */}
         <div className="text-center mb-8">
