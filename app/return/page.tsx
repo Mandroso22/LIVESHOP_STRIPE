@@ -1,9 +1,7 @@
-import dynamic from "next/dynamic";
+"use client";
 
-const ReturnClient = dynamic(() => import("./ReturnClient"), {
-  ssr: false,
-});
+import ReturnWrapper from "./ReturnWrapper";
 
 export default function ReturnPage() {
-  return <ReturnClient />;
+  return <ReturnWrapper />;
 }
