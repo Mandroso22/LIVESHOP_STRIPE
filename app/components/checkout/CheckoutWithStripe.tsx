@@ -1,32 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
 } from "@stripe/react-stripe-js";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  Package,
-  Truck,
-  Clock,
-  MapPin,
-} from "lucide-react";
+import { Package, Truck } from "lucide-react";
 
-// Vérification de la clé Stripe
-const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+import { fetchClientSecret } from "../../actions/stripe";
 
-if (!STRIPE_PUBLIC_KEY) {
-  console.error(
-    "ERREUR: NEXT_PUBLIC_STRIPE_PUBLIC_KEY n'est pas définie dans les variables d'environnement"
-  );
-}
-
-// Initialiser Stripe avec vérification
-const stripePromise = STRIPE_PUBLIC_KEY ? loadStripe(STRIPE_PUBLIC_KEY) : null;
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || ""
+);
 
 interface FormData {
   reference: string;
@@ -46,12 +32,11 @@ interface FormErrors {
   [key: string]: string;
 }
 
-export default function CheckoutPage() {
+export default function CheckoutWithStripe() {
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [stripeError, setStripeError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     reference: "",
     amount: "",
@@ -65,6 +50,8 @@ export default function CheckoutPage() {
     postalCode: "",
     shippingMethod: "chronopost",
   });
+
+  // ... Garder toutes les constantes existantes (steps, shippingOptions) ...
 
   const steps = [
     { id: 1, title: "Commande", subtitle: "Informations de base" },
@@ -88,14 +75,6 @@ export default function CheckoutPage() {
       icon: <Package className="w-5 h-5" />,
     },
   ];
-
-  useEffect(() => {
-    if (!STRIPE_PUBLIC_KEY) {
-      setStripeError(
-        "La configuration de paiement n'est pas disponible. Veuillez contacter le support."
-      );
-    }
-  }, []);
 
   const validateStep = () => {
     const newErrors: FormErrors = {};
@@ -157,53 +136,40 @@ export default function CheckoutPage() {
   };
 
   const getProgressWidth = () => {
-    if (currentStep === 1) return "0%";
-    if (currentStep === 3) return "90%";
-    return `${((currentStep - 1) / (steps.length - 1)) * 100}%`;
+    const progress = ((currentStep - 1) / (steps.length - 1)) * 100;
+    return `${progress}%`;
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
+  // Modifier handlePayment pour utiliser Stripe Embedded Checkout
   const handlePayment = async () => {
     try {
       setIsLoading(true);
 
       // Calculer le montant total avec les frais de livraison
-      const shippingPrice =
+      const shippingPrice = parseFloat(
         shippingOptions.find((opt) => opt.id === formData.shippingMethod)
-          ?.price || "0";
+          ?.price || "0"
+      );
+      const totalAmount = parseFloat(formData.amount || "0") + shippingPrice;
 
-      const totalAmount = (
-        parseFloat(formData.amount || "0") + parseFloat(shippingPrice)
-      ).toString();
-
-      // Créer la session de paiement via l'API
-      const response = await fetch("/api/create-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: totalAmount,
-          reference: formData.reference,
-          email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          shippingMethod: formData.shippingMethod,
-        }),
+      // Appeler l'action serveur pour créer la session Stripe
+      const secret = await fetchClientSecret({
+        amount: totalAmount.toString(),
+        reference: formData.reference,
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        shippingMethod: formData.shippingMethod,
+        shippingPrice: shippingPrice.toString(),
       });
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la création de la session de paiement");
-      }
-
-      const { clientSecret: secret } = await response.json();
       setClientSecret(secret);
     } catch (error) {
       console.error("Erreur lors du paiement:", error);
@@ -212,27 +178,6 @@ export default function CheckoutPage() {
       setIsLoading(false);
     }
   };
-
-  // Si erreur de configuration Stripe, afficher un message
-  if (stripeError) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-400 to-stone-800 flex items-center justify-center">
-        <div className="max-w-md mx-auto px-4 py-6 text-center">
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-red-400 mb-2">
-              Erreur de Configuration
-            </h2>
-            <p className="text-white/80">{stripeError}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Si Stripe n'est pas initialisé, ne pas afficher le composant de paiement
-  if (!stripePromise) {
-    return null;
-  }
 
   // Si on a un clientSecret, afficher le composant Stripe Embedded Checkout
   if (clientSecret) {
@@ -254,24 +199,18 @@ export default function CheckoutPage() {
 
           {/* Afficher le composant Stripe Embedded Checkout */}
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-            {clientSecret ? (
-              <EmbeddedCheckoutProvider
-                stripe={stripePromise}
-                options={{
-                  clientSecret,
-                  onComplete: () => {
-                    // Rediriger vers la page de succès après le paiement
-                    window.location.href = "/success";
-                  },
-                }}
-              >
-                <EmbeddedCheckout />
-              </EmbeddedCheckoutProvider>
-            ) : (
-              <div className="text-center text-white/80">
-                Chargement du formulaire de paiement...
-              </div>
-            )}
+            <EmbeddedCheckoutProvider
+              stripe={stripePromise}
+              options={{
+                clientSecret,
+                onComplete: () => {
+                  // Rediriger vers la page de succès après le paiement
+                  window.location.href = "/success";
+                },
+              }}
+            >
+              <EmbeddedCheckout />
+            </EmbeddedCheckoutProvider>
           </div>
 
           {/* Garder le footer */}
@@ -291,7 +230,7 @@ export default function CheckoutPage() {
     );
   }
 
-  // Sinon, afficher le formulaire normal avec les 3 étapes
+  // Sinon, afficher le formulaire normal
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-400 to-stone-800">
       <div className="max-w-md mx-auto px-4 py-6">
@@ -327,7 +266,7 @@ export default function CheckoutPage() {
                     }`}
                   >
                     {currentStep > step.id ? (
-                      <Check className="w-4 h-4" />
+                      <span className="w-4 h-4">✓</span>
                     ) : (
                       step.id
                     )}
@@ -392,47 +331,43 @@ export default function CheckoutPage() {
                 <label className="block text-sm font-medium text-white/90 mb-2">
                   Montant (€)
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 font-medium">
-                    €
-                  </span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (parseFloat(value) >= 0) {
-                        handleInputChange("amount", value);
-                      }
-                    }}
-                    required
-                    placeholder="0.00"
-                    className={`w-full pl-8 pr-4 py-3 bg-white/5 border ${
-                      errors.amount ? "border-red-400/50" : "border-white/10"
-                    } rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 backdrop-blur-sm transition-all`}
-                  />
-                </div>
-                {errors.amount && (
-                  <p className="mt-1 text-sm text-red-400/80">
-                    {errors.amount}
-                  </p>
-                )}
-                <div className="mt-4">
-                  <div className="grid grid-cols-3 gap-3">
-                    {[20, 40, 60].map((amount) => (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 font-medium">
+                      €
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.amount}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (parseFloat(value) >= 0) {
+                          handleInputChange("amount", value);
+                        }
+                      }}
+                      required
+                      placeholder="0.00"
+                      className={`w-full pl-8 pr-4 py-3 bg-white/5 border ${
+                        errors.amount ? "border-red-400/50" : "border-white/10"
+                      } rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 backdrop-blur-sm transition-all`}
+                    />
+                  </div>
+                  {errors.amount && (
+                    <p className="mt-1 text-sm text-red-400/80">
+                      {errors.amount}
+                    </p>
+                  )}
+                  <div className="grid grid-cols-4 gap-2">
+                    {[20, 40, 60, 80].map((amount) => (
                       <button
                         key={amount}
                         type="button"
                         onClick={() =>
                           handleInputChange("amount", amount.toString())
                         }
-                        className={`px-4 py-3 text-base font-medium rounded-xl transition-all ${
-                          parseFloat(formData.amount) === amount
-                            ? "bg-pink-500/20 border-2 border-pink-500/50 text-white"
-                            : "bg-stone-700/50 hover:bg-stone-600/50 text-white border border-stone-600/50"
-                        }`}
+                        className="px-3 py-2 bg-stone-700/50 hover:bg-stone-600/50 text-white text-sm font-medium rounded-lg transition-colors border border-stone-600/50"
                       >
                         {amount}€
                       </button>
@@ -753,7 +688,7 @@ export default function CheckoutPage() {
 
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
               <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-cyan-400" />
+                <span className="w-5 h-5 text-cyan-400">📍</span>
                 Adresse de livraison
               </h3>
 
@@ -772,7 +707,7 @@ export default function CheckoutPage() {
 
             <div className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-sm rounded-2xl p-6 border border-pink-500/20">
               <div className="flex items-center gap-3 mb-3">
-                <Clock className="w-5 h-5 text-pink-400" />
+                <span className="w-5 h-5 text-pink-400">⏰</span>
                 <span className="font-semibold text-white">
                   Livraison Chronopost Express
                 </span>
@@ -793,7 +728,7 @@ export default function CheckoutPage() {
               className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all backdrop-blur-sm border border-white/10"
               disabled={isLoading}
             >
-              <ChevronLeft className="w-4 h-4" />
+              <span className="w-4 h-4">←</span>
               Retour
             </button>
           )}
@@ -807,13 +742,13 @@ export default function CheckoutPage() {
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : currentStep === 3 ? (
               <>
-                <Check className="w-4 h-4" />
+                <span className="w-4 h-4">✓</span>
                 Payer maintenant
               </>
             ) : (
               <>
                 Continuer
-                <ChevronRight className="w-4 h-4" />
+                <span className="w-4 h-4">→</span>
               </>
             )}
           </button>
