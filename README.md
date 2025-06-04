@@ -1,3 +1,138 @@
+# L'Avenue 120 - TikTok Live Payment Platform EN/FR will follow
+
+A modern and secure web application for managing payments during L'Avenue 120's TikTok live streams, specializing in luxury perfumes.
+
+## 🚀 Features
+
+- 💳 Complete Stripe integration for secure payments
+- 📱 Modern and responsive user interface
+- 🔄 3-step payment process
+- 🚚 Flexible shipping options (Chronopost Express and Standard)
+- 📧 Automatic email notifications
+- 🔒 Enhanced security with HTTPS and data validation
+- 🎨 Modern design with smooth animations
+- 📊 Real-time order tracking
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15.3.3
+- **Language**: TypeScript
+- **Styling**: TailwindCSS 4
+- **Payment**: Stripe (v18.2.1)
+- **UI Components**:
+  - @stripe/react-stripe-js
+  - @stripe/stripe-js
+  - lucide-react (icons)
+- **Fonts**: Geist (Sans & Mono)
+
+## 📋 Prerequisites
+
+- Node.js (recommended version: 18.x or higher)
+- npm or yarn
+- Stripe account with API keys
+- Domain with valid SSL certificate
+
+## 🔧 Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Mandroso22/lavenuelive.git
+cd lavenuelive
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Configure environment variables:
+   Create a `.env.local` file in the root directory with the following variables:
+
+```env
+NEXT_PUBLIC_STRIPE_PUBLIC_KEY=your_stripe_public_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+```
+
+4. Start the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000)
+
+## 🏗️ Project Structure
+
+```
+lavenuelive/
+├── app/
+│   ├── actions/         # Server actions (Stripe, etc.)
+│   ├── api/            # API routes
+│   ├── components/     # React components
+│   │   └── checkout/   # Payment components
+│   ├── lib/           # Utilities and configurations
+│   ├── return/        # Payment return page
+│   ├── globals.css    # Global styles
+│   ├── layout.tsx     # Main layout
+│   └── page.tsx       # Home page
+├── public/            # Static assets
+└── ...config files
+```
+
+## 🔐 Security
+
+- Server-side data validation
+- CSRF protection
+- Secure payments via Stripe
+- Environment variables for sensitive keys
+- HTTPS required in production
+
+## 🚢 Deployment
+
+The project is optimized for Vercel deployment:
+
+1. Connect your GitHub repository to Vercel
+2. Configure environment variables in the Vercel dashboard
+3. Deploy!
+
+## 📝 Development Notes
+
+- Project uses Next.js App Router
+- Components are optimized for performance
+- Code follows TypeScript best practices
+- Tests to be implemented (TODO)
+
+## 🤝 Contributing
+
+Contributions are welcome! To contribute:
+
+1. Fork the project
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+## 📄 License
+
+This project is private and owned by L'Avenue 120. All rights reserved.
+
+## 👥 Support
+
+For any questions or support:
+
+- Email: support@lavenue120.live
+- Website: https://lavenue120.live
+
+---
+
+Developed with ❤️ by [@Mandroso22](https://github.com/Mandroso22) for [Makesocial.me](https://makesocial.me)
+
 # L'Avenue 120 - Plateforme de Paiement TikTok Live
 
 Une application web moderne et sécurisée pour gérer les paiements lors des lives TikTok de L'Avenue 120, spécialisée dans la vente de parfums de luxe.
@@ -37,7 +172,7 @@ Une application web moderne et sécurisée pour gérer les paiements lors des li
 1. Cloner le repository :
 
 ```bash
-git clone https://github.com/votre-username/lavenuelive.git
+git clone https://github.com/Mandroso22/lavenuelive.git
 cd lavenuelive
 ```
 
