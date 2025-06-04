@@ -7,5 +7,5 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-05-28.basil", // Version requise par le package stripe@18.2.1
+  apiVersion: "2025-05-28.basil",
 });

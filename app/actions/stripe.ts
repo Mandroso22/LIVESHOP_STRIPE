@@ -17,7 +17,6 @@ interface PaymentData {
 export async function fetchClientSecret(data: PaymentData) {
   const origin = (await headers()).get("origin");
 
-  // Create Checkout Sessions from body params.
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: [

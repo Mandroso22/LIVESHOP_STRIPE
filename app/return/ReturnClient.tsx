@@ -20,7 +20,6 @@ export default function ReturnClient() {
       return;
     }
 
-    // Vérifier le statut de la session
     fetch(`/api/check-payment-status?session_id=${sessionId}`)
       .then((res) => res.json())
       .then((data) => {

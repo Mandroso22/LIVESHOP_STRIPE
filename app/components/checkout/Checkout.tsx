@@ -16,7 +16,6 @@ import {
   MapPin,
 } from "lucide-react";
 
-// Vérification de la clé Stripe
 const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
 
 if (!STRIPE_PUBLIC_KEY) {
@@ -25,7 +24,6 @@ if (!STRIPE_PUBLIC_KEY) {
   );
 }
 
-// Initialiser Stripe avec vérification
 const stripePromise = STRIPE_PUBLIC_KEY ? loadStripe(STRIPE_PUBLIC_KEY) : null;
 
 interface FormData {
@@ -256,8 +254,7 @@ export default function CheckoutPage() {
                 options={{
                   clientSecret,
                   onComplete: () => {
-                    // Rediriger vers la page de succès après le paiement
-                    window.location.href = "/success";
+                    window.location.href = "/return";
                   },
                 }}
               >

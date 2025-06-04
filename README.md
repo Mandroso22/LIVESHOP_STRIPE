@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# L'Avenue 120 - Plateforme de Paiement TikTok Live
 
-## Getting Started
+Une application web moderne et sécurisée pour gérer les paiements lors des lives TikTok de L'Avenue 120, spécialisée dans la vente de parfums de luxe.
 
-First, run the development server:
+## 🚀 Fonctionnalités
+
+- 💳 Intégration complète avec Stripe pour les paiements sécurisés
+- 📱 Interface utilisateur moderne et responsive
+- 🔄 Processus de paiement en 3 étapes
+- 🚚 Options de livraison flexibles (Chronopost Express et Standard)
+- 📧 Notifications par email automatiques
+- 🔒 Sécurité renforcée avec HTTPS et validation des données
+- 🎨 Design moderne avec animations fluides
+- 📊 Suivi des commandes en temps réel
+
+## 🛠️ Technologies Utilisées
+
+- **Framework**: Next.js 15.3.3
+- **Language**: TypeScript
+- **Styling**: TailwindCSS 4
+- **Paiement**: Stripe (v18.2.1)
+- **UI Components**:
+  - @stripe/react-stripe-js
+  - @stripe/stripe-js
+  - lucide-react (icônes)
+- **Fonts**: Geist (Sans & Mono)
+
+## 📋 Prérequis
+
+- Node.js (version recommandée : 18.x ou supérieure)
+- npm ou yarn
+- Compte Stripe avec clés API
+- Domaine avec certificat SSL valide
+
+## 🔧 Installation
+
+1. Cloner le repository :
+
+```bash
+git clone https://github.com/votre-username/lavenuelive.git
+cd lavenuelive
+```
+
+2. Installer les dépendances :
+
+```bash
+npm install
+# ou
+yarn install
+```
+
+3. Configurer les variables d'environnement :
+   Créez un fichier `.env.local` à la racine du projet avec les variables suivantes :
+
+```env
+NEXT_PUBLIC_STRIPE_PUBLIC_KEY=votre_clé_publique_stripe
+STRIPE_SECRET_KEY=votre_clé_secrète_stripe
+```
+
+4. Lancer le serveur de développement :
 
 ```bash
 npm run dev
-# or
+# ou
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application sera accessible à l'adresse [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🏗️ Structure du Projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+lavenuelive/
+├── app/
+│   ├── actions/         # Actions serveur (Stripe, etc.)
+│   ├── api/            # Routes API
+│   ├── components/     # Composants React
+│   │   └── checkout/   # Composants de paiement
+│   ├── lib/           # Utilitaires et configurations
+│   ├── return/        # Page de retour après paiement
+│   ├── globals.css    # Styles globaux
+│   ├── layout.tsx     # Layout principal
+│   └── page.tsx       # Page d'accueil
+├── public/            # Assets statiques
+└── ...config files
+```
 
-## Learn More
+## 🔐 Sécurité
 
-To learn more about Next.js, take a look at the following resources:
+- Validation des données côté serveur
+- Protection CSRF
+- Paiements sécurisés via Stripe
+- Variables d'environnement pour les clés sensibles
+- HTTPS obligatoire en production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚢 Déploiement
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Le projet est optimisé pour un déploiement sur Vercel :
 
-## Deploy on Vercel
+1. Connectez votre repository GitHub à Vercel
+2. Configurez les variables d'environnement dans le dashboard Vercel
+3. Déployez !
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📝 Notes de Développement
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Le projet utilise l'App Router de Next.js
+- Les composants sont optimisés pour les performances
+- Le code suit les meilleures pratiques TypeScript
+- Les tests sont à implémenter (TODO)
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! Pour contribuer :
+
+1. Fork le projet
+2. Créez une branche pour votre fonctionnalité
+3. Committez vos changements
+4. Poussez vers la branche
+5. Ouvrez une Pull Request
+
+## 📄 Licence
+
+Ce projet est privé et propriété de L'Avenue 120. Tous droits réservés.
+
+## 👥 Support
+
+Pour toute question ou support :
+
+- Email : support@lavenue120.live
+- Site : https://lavenue120.live
+
+---
+
+Développé avec ❤️ par [Makesocial.me](https://makesocial.me)
