@@ -1,100 +1,114 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { stripe } from "../lib/stripe";
+import { CheckCircle2, XCircle } from "lucide-react";
 
-type Props = {
+interface ReturnPageProps {
   searchParams: { session_id?: string };
-};
+}
 
-export default async function Return({ searchParams }: Props) {
-  const session_id = searchParams.session_id;
+export default function ReturnPage({ searchParams }: ReturnPageProps) {
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
+  const [message, setMessage] = useState("");
 
-  if (!session_id) {
-    return (
-      <section className="p-6 text-center">
-        <h1 className="text-2xl font-bold text-red-500 mb-4">
-          Erreur de session
-        </h1>
-        <p className="text-gray-600">
-          Aucun ID de session fourni. Veuillez réessayer votre paiement.
-        </p>
-        <Link
-          href="/"
-          className="mt-4 inline-block text-blue-500 hover:underline"
-        >
-          Retour à l&apos;accueil
-        </Link>
-      </section>
-    );
-  }
+  useEffect(() => {
+    if (!searchParams.session_id) {
+      setStatus("error");
+      setMessage("Session ID manquant");
+      return;
+    }
 
-  try {
-    const { status, customer_details, payment_status } =
-      await stripe.checkout.sessions.retrieve(session_id, {
-        expand: ["line_items", "payment_intent"],
+    // Vérifier le statut de la session
+    fetch(`/api/check-payment-status?session_id=${searchParams.session_id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "complete") {
+          setStatus("success");
+          setMessage("Paiement réussi !");
+        } else {
+          setStatus("error");
+          setMessage("Le paiement n'a pas pu être confirmé");
+        }
+      })
+      .catch(() => {
+        setStatus("error");
+        setMessage("Erreur lors de la vérification du paiement");
       });
+  }, [searchParams.session_id]);
 
-    if (status === "open") {
-      return redirect("/");
-    }
-
-    if (status === "complete" && payment_status === "paid") {
-      return (
-        <section id="success" className="p-6 text-center">
-          <h1 className="text-2xl font-bold text-green-500 mb-4">
-            Paiement réussi !
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-400 to-stone-800 flex items-center justify-center">
+      <div className="max-w-md w-full mx-auto px-4 py-6">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-stone-100 uppercase tracking-wider mb-2">
+            L&apos;avenue 120
           </h1>
-          <p className="text-gray-600">
-            Nous vous remercions de votre achat ! Un email de confirmation sera
-            envoyé à {customer_details?.email || "vous"}. Pour toute question,
-            contactez-nous à{" "}
-            <a
-              href="mailto:lavenue120@gmail.com"
-              className="text-blue-500 hover:underline"
-            >
-              lavenue120@gmail.com
-            </a>
-          </p>
-        </section>
-      );
-    }
+        </div>
 
-    // Gestion des autres statuts
-    return (
-      <section className="p-6 text-center">
-        <h1 className="text-2xl font-bold text-yellow-500 mb-4">
-          Paiement en attente
-        </h1>
-        <p className="text-gray-600">
-          Votre paiement est en cours de traitement. Vous recevrez un email une
-          fois le paiement confirmé.
-        </p>
-        <Link
-          href="/"
-          className="mt-4 inline-block text-blue-500 hover:underline"
-        >
-          Retour à l&apos;accueil
-        </Link>
-      </section>
-    );
-  } catch (error) {
-    console.error("Erreur lors de la récupération de la session:", error);
-    return (
-      <section className="p-6 text-center">
-        <h1 className="text-2xl font-bold text-red-500 mb-4">
-          Une erreur est survenue
-        </h1>
-        <p className="text-gray-600">
-          Nous n&apos;avons pas pu vérifier le statut de votre paiement.
-          Veuillez nous contacter si le problème persiste.
-        </p>
-        <Link
-          href="/"
-          className="mt-4 inline-block text-blue-500 hover:underline"
-        >
-          Retour à l&apos;accueil
-        </Link>
-      </section>
-    );
-  }
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 text-center">
+          {status === "loading" && (
+            <div className="animate-pulse">
+              <div className="w-16 h-16 bg-white/10 rounded-full mx-auto mb-4" />
+              <div className="h-4 bg-white/10 rounded w-3/4 mx-auto mb-2" />
+              <div className="h-4 bg-white/10 rounded w-1/2 mx-auto" />
+            </div>
+          )}
+
+          {status === "success" && (
+            <>
+              <div className="w-16 h-16 bg-green-500/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-green-400" />
+              </div>
+              <h2 className="text-2xl font-semibold text-white mb-2">
+                Paiement confirmé !
+              </h2>
+              <p className="text-white/70 mb-6">
+                Merci pour votre commande. Vous recevrez un email de
+                confirmation dans quelques instants.
+              </p>
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all"
+              >
+                Retour à l&apos;accueil
+              </Link>
+            </>
+          )}
+
+          {status === "error" && (
+            <>
+              <div className="w-16 h-16 bg-red-500/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <XCircle className="w-8 h-8 text-red-400" />
+              </div>
+              <h2 className="text-2xl font-semibold text-white mb-2">
+                Oups, quelque chose s&apos;est mal passé
+              </h2>
+              <p className="text-white/70 mb-6">{message}</p>
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all"
+              >
+                Réessayer
+              </Link>
+            </>
+          )}
+        </div>
+
+        <div className="text-center mt-8 text-white/50 text-xs">
+          <p>🔒 Paiement sécurisé • Livraison rapide • Support client 24/7</p>
+          <a
+            href="https://makesocial.me"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-2 text-white/30 hover:text-white/50 transition-colors"
+          >
+            Powered by Makesocial.me
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 }
