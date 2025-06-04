@@ -7,7 +7,6 @@ export async function POST(request: Request) {
     const { amount, reference, email, firstName, lastName, shippingMethod } =
       body;
 
-    // Créer une session de paiement pour Embedded Checkout
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
