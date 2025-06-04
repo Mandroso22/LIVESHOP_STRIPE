@@ -1,6 +1,5 @@
-EN/FR(will follow)
+# L'Avenue 120 - TikTok Live Payment Platform EN/FR will follow
 
-# L'Avenue 120 - TikTok Live Payment Platform
 
 A modern and secure web application for managing payments during L'Avenue 120's TikTok live streams, specializing in luxury perfumes.
 
