@@ -241,7 +241,7 @@ export default function CheckoutPage() {
         <div className="max-w-md mx-auto px-4 py-6">
           {/* Garder le header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-stone-100 uppercase cursor-pointer tracking-wider mb-2">
+            <h1 className="text-3xl font-semibold text-stone-100 uppercase cursor-pointer tracking-wider mb-2">
               L&apos;avenue 120
             </h1>
             <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-3 py-1">
