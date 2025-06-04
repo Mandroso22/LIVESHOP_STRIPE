@@ -37,7 +37,7 @@ Une application web moderne et sécurisée pour gérer les paiements lors des li
 1. Cloner le repository :
 
 ```bash
-git clone https://github.com/votre-username/lavenuelive.git
+git clone https://github.com/Mandroso22/lavenuelive.git
 cd lavenuelive
 ```
 
