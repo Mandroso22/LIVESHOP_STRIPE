@@ -2,27 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle } from "lucide-react";
 
-interface ReturnPageProps {
-  searchParams: { session_id?: string };
-}
-
-export default function ReturnPage({ searchParams }: ReturnPageProps) {
+export default function ReturnPage() {
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session_id");
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading"
   );
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!searchParams.session_id) {
+    if (!sessionId) {
       setStatus("error");
       setMessage("Session ID manquant");
       return;
     }
 
     // Vérifier le statut de la session
-    fetch(`/api/check-payment-status?session_id=${searchParams.session_id}`)
+    fetch(`/api/check-payment-status?session_id=${sessionId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "complete") {
@@ -37,7 +36,7 @@ export default function ReturnPage({ searchParams }: ReturnPageProps) {
         setStatus("error");
         setMessage("Erreur lors de la vérification du paiement");
       });
-  }, [searchParams.session_id]);
+  }, [sessionId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-400 to-stone-800 flex items-center justify-center">
