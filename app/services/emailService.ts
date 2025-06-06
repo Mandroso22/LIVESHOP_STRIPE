@@ -15,13 +15,19 @@ interface CustomerInfo {
 }
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true pour le port 465, false pour les autres ports
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
   },
+});
+
+transporter.verify(function (error: Error | null) {
+  if (error) {
+    console.error("Erreur de configuration SMTP:", error);
+  } else {
+    console.log("Serveur SMTP prêt à envoyer des emails");
+  }
 });
 
 const getClientEmailTemplate = (customerInfo: CustomerInfo) => `
@@ -50,7 +56,7 @@ const getClientEmailTemplate = (customerInfo: CustomerInfo) => `
     <div class="content">
       <h2>Merci pour votre commande !</h2>
       <p>Cher(e) ${customerInfo.firstName},</p>
-      <p>Nous avons bien reçu votre commande et nous vous en remercions. Voici un récapitulatif de votre commande :</p>
+      <p>Nous avons bien reçu votre commande et nous vous en remercions ! Voici un récapitulatif de votre commande :</p>
       
       <div class="order-details">
         <div class="order-info">
@@ -93,7 +99,7 @@ const getClientEmailTemplate = (customerInfo: CustomerInfo) => `
 
 // Template texte pour l'email admin
 const getAdminEmailTemplate = (customerInfo: CustomerInfo) => `
-    Nouvelle commande reçue !
+    Nouvelle commande reçue :
     
     Référence: ${customerInfo.reference}
     Montant: ${customerInfo.amount}€
@@ -115,29 +121,63 @@ const getAdminEmailTemplate = (customerInfo: CustomerInfo) => `
 
 export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
   const adminEmail = "lavenue120@gmail.com";
+  const senderEmail = process.env.EMAIL_USER;
+
+  if (!senderEmail || !process.env.EMAIL_PASSWORD) {
+    throw new Error(
+      "Configuration email incomplète: EMAIL_USER ou EMAIL_PASSWORD manquant"
+    );
+  }
 
   try {
-    // Email pour l'admin
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      replyTo: "lavenue120@gmail.com",
+    const adminInfo = await transporter.sendMail({
+      from: `"L'Avenue 120" <${senderEmail}>`,
+      replyTo: adminEmail,
       to: adminEmail,
       subject: `Nouvelle commande - ${customerInfo.reference}`,
       text: getAdminEmailTemplate(customerInfo),
     });
+    if (!adminInfo.messageId) {
+      throw new Error("Erreur lors de l'envoi de l'email admin");
+    } else {
+      console.log("Message admin envoyé:", adminInfo.messageId);
+      console.log(
+        "Preview URL admin:",
+        nodemailer.getTestMessageUrl(adminInfo)
+      );
+    }
 
     // Email pour le client
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      replyTo: "lavenue120@gmail.com",
+    const clientInfo = await transporter.sendMail({
+      from: `"L'Avenue 120" <${senderEmail}>`,
+      replyTo: adminEmail,
       to: customerInfo.email,
       subject: `Confirmation de commande - L'Avenue 120`,
       html: getClientEmailTemplate(customerInfo),
     });
+    if (!clientInfo.messageId) {
+      throw new Error("Erreur lors de l'envoi de l'email client");
+    } else {
+      console.log("Message client envoyé:", clientInfo.messageId);
+      console.log(
+        "Preview URL client:",
+        nodemailer.getTestMessageUrl(clientInfo)
+      );
+    }
 
-    return true;
+    return {
+      success: Boolean(adminInfo.messageId && clientInfo.messageId),
+      adminMessageId: adminInfo.messageId,
+      clientMessageId: clientInfo.messageId,
+      adminPreviewUrl: nodemailer.getTestMessageUrl(adminInfo),
+      clientPreviewUrl: nodemailer.getTestMessageUrl(clientInfo),
+    };
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email:", error);
-    throw new Error("Erreur lors de l'envoi de l'email de confirmation");
+    throw new Error(
+      `Erreur lors de l'envoi de l'email: ${
+        error instanceof Error ? error.message : "Erreur inconnue"
+      }`
+    );
   }
 }

@@ -193,7 +193,6 @@ export default function CheckoutPage() {
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    // Nettoyage des entrées selon le champ
     let cleanedValue = value;
 
     switch (field) {
@@ -226,8 +225,6 @@ export default function CheckoutPage() {
   const handlePayment = async () => {
     try {
       setIsLoading(true);
-
-      // Calculer le montant total avec les frais de livraison
       const shippingPrice =
         shippingOptions.find((opt) => opt.id === formData.shippingMethod)
           ?.price || "0";

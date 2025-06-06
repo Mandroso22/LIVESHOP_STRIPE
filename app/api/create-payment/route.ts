@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { stripe } from "../../lib/stripe";
-import { sendOrderConfirmationEmail } from "../../services/emailService";
 
 export async function POST(request: Request) {
   try {
@@ -29,7 +28,7 @@ export async function POST(request: Request) {
               name: `Commande ${reference}`,
               description: "L'avenue 120 - Commande TikTok",
             },
-            unit_amount: Math.round(parseFloat(amount) * 100), // Stripe utilise les centimes
+            unit_amount: Math.round(parseFloat(amount) * 100),
           },
           quantity: 1,
         },
@@ -47,30 +46,13 @@ export async function POST(request: Request) {
         city,
         postalCode,
         tiktokPseudo,
+        email,
       },
       ui_mode: "embedded",
       return_url: `${request.headers.get(
         "origin"
       )}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
-
-    try {
-      await sendOrderConfirmationEmail({
-        firstName,
-        lastName,
-        email,
-        phone,
-        address,
-        city,
-        postalCode,
-        reference,
-        amount,
-        shippingMethod,
-        tiktokPseudo,
-      });
-    } catch (emailError) {
-      console.error("Erreur lors de l'envoi de l'email:", emailError);
-    }
 
     return NextResponse.json({ clientSecret: session.client_secret });
   } catch (error) {
