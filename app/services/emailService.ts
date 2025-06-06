@@ -22,7 +22,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Template HTML pour l'email client
 const getClientEmailTemplate = (customerInfo: CustomerInfo) => `
 <!DOCTYPE html>
 <html>
@@ -116,7 +115,6 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
   const adminEmail = "lavenue120@gmail.com";
 
   try {
-    // Envoi de l'email à l'admin
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: adminEmail,

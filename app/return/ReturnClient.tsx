@@ -96,7 +96,7 @@ export default function ReturnClient() {
               <p>
                 Si vous ne recevez pas d&apos;email dans les prochaines minutes,
               </p>
-              <p>veuillez nous contacter à Lavenue120@gmail.com</p>
+              <p>veuillez nous contacter à lavenue120@gmail.com</p>
             </div>
           </div>
         );
@@ -110,7 +110,7 @@ export default function ReturnClient() {
             </h1>
             <p className="text-center text-gray-600 max-w-md">{errorMessage}</p>
             <div className="mt-4 text-sm text-gray-500">
-              <p>Contactez-nous à Lavenue120@gmail.com</p>
+              <p>Contactez-nous à lavenue120@gmail.com</p>
               <p>en mentionnant votre session de paiement</p>
             </div>
           </div>
