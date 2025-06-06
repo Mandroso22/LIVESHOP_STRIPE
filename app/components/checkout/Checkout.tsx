@@ -192,6 +192,11 @@ export default function CheckoutPage() {
           firstName: formData.firstName,
           lastName: formData.lastName,
           shippingMethod: formData.shippingMethod,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          tiktokPseudo: formData.tiktokPseudo,
         }),
       });
 

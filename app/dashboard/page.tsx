@@ -1,0 +1,595 @@
+"use client";
+
+import { useState } from "react";
+import type { ReactElement } from "react";
+import {
+  Package,
+  Plus,
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  CheckCircle,
+  Clock,
+  Users,
+  TrendingUp,
+  DollarSign,
+  Video,
+  X,
+  LucideIcon,
+} from "lucide-react";
+
+type OrderStatus = "pending" | "paid" | "preparing" | "shipped" | "delivered";
+
+interface Order {
+  id: string;
+  reference: string;
+  amount: number;
+  tiktokPseudo: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  shippingMethod: string;
+  status: OrderStatus;
+  createdAt: string;
+  paidAt?: string;
+}
+
+interface Product {
+  id: string;
+  reference: string;
+  name: string;
+  price: number;
+  description: string;
+  stock: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+interface StatusConfig {
+  color: string;
+  icon: LucideIcon;
+  label: string;
+}
+
+interface TabConfig {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+const statusConfig: Record<OrderStatus, StatusConfig> = {
+  pending: {
+    color: "text-amber-300 bg-amber-500/20 border-amber-500/30",
+    icon: Clock,
+    label: "En attente",
+  },
+  paid: {
+    color: "text-green-300 bg-green-500/20 border-green-500/30",
+    icon: CheckCircle,
+    label: "Payé",
+  },
+  preparing: {
+    color: "text-blue-300 bg-blue-500/20 border-blue-500/30",
+    icon: Package,
+    label: "Préparation",
+  },
+  shipped: {
+    color: "text-purple-300 bg-purple-500/20 border-purple-500/30",
+    icon: TrendingUp,
+    label: "Expédié",
+  },
+  delivered: {
+    color: "text-cyan-300 bg-cyan-500/20 border-cyan-500/30",
+    icon: CheckCircle,
+    label: "Livré",
+  },
+};
+
+const tabs: TabConfig[] = [
+  { id: "dashboard", label: "Tableau de bord", icon: TrendingUp },
+  { id: "orders", label: "Commandes", icon: Package },
+  { id: "products", label: "Produits", icon: Plus },
+];
+
+export default function AdminDashboard(): ReactElement {
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  // Données de démonstration
+  const [orders] = useState<Order[]>([
+    {
+      id: "1",
+      reference: "REF001",
+      amount: 45.9,
+      tiktokPseudo: "@user123",
+      customerName: "Marie Dupont",
+      email: "marie@email.com",
+      phone: "+33 6 12 34 56 78",
+      address: "123 Rue de la Paix",
+      city: "Paris",
+      postalCode: "75001",
+      shippingMethod: "chronopost",
+      status: "paid",
+      createdAt: "2025-06-05T10:30:00Z",
+      paidAt: "2025-06-05T10:35:00Z",
+    },
+    {
+      id: "2",
+      reference: "REF002",
+      amount: 29.9,
+      tiktokPseudo: "@viewer456",
+      customerName: "Jean Martin",
+      email: "jean@email.com",
+      phone: "+33 6 98 76 54 32",
+      address: "456 Avenue des Champs",
+      city: "Lyon",
+      postalCode: "69000",
+      shippingMethod: "standard",
+      status: "pending",
+      createdAt: "2025-06-05T14:15:00Z",
+    },
+  ]);
+
+  const [products] = useState<Product[]>([
+    {
+      id: "1",
+      reference: "PROD001",
+      name: "Lot Beauté Premium",
+      price: 45.0,
+      description: "Kit complet de soins visage",
+      stock: 15,
+      isActive: true,
+      createdAt: "2025-06-01T09:00:00Z",
+    },
+    {
+      id: "2",
+      reference: "PROD002",
+      name: "Pack Wellness",
+      price: 29.9,
+      description: "Accessoires bien-être",
+      stock: 8,
+      isActive: true,
+      createdAt: "2025-06-02T11:30:00Z",
+    },
+  ]);
+
+  const getStatusBadge = (status: OrderStatus) => {
+    const config = statusConfig[status];
+    const Icon = config.icon;
+
+    return (
+      <span
+        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${config.color}`}
+      >
+        <Icon className="w-3 h-3" />
+        {config.label}
+      </span>
+    );
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
+      order.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.tiktokPseudo.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const stats = {
+    totalOrders: orders.length,
+    totalRevenue: orders.reduce((sum, order) => sum + order.amount, 0),
+    pendingOrders: orders.filter((order) => order.status === "pending").length,
+    activeProducts: products.filter((product) => product.isActive).length,
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-stone-100 uppercase tracking-wider">
+                L&apos;avenue 120
+              </h1>
+              <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-3 py-1 mt-2">
+                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-amber-300 font-medium">
+                  Dashboard Admin
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
+                <span className="text-white/70 text-sm">Live TikTok</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <Video className="w-4 h-4 text-pink-400" />
+                  <span className="text-white font-medium">127 viewers</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="flex gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-1 border border-white/10">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    activeTab === tab.id
+                      ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
+                      : "text-white/70 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Dashboard Tab */}
+        {activeTab === "dashboard" && (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/70 text-sm">Total Commandes</p>
+                    <p className="text-2xl font-bold text-white">
+                      {stats.totalOrders}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-pink-500/20 rounded-xl">
+                    <Package className="w-6 h-6 text-pink-400" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/70 text-sm">
+                      Chiffre d&apos;affaires
+                    </p>
+                    <p className="text-2xl font-bold text-white">
+                      €{stats.totalRevenue.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-green-500/20 rounded-xl">
+                    <DollarSign className="w-6 h-6 text-green-400" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/70 text-sm">En attente</p>
+                    <p className="text-2xl font-bold text-white">
+                      {stats.pendingOrders}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-amber-500/20 rounded-xl">
+                    <Clock className="w-6 h-6 text-amber-400" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/70 text-sm">Produits actifs</p>
+                    <p className="text-2xl font-bold text-white">
+                      {stats.activeProducts}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-blue-500/20 rounded-xl">
+                    <Users className="w-6 h-6 text-blue-400" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Orders */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+              <h3 className="text-xl font-bold text-white mb-4">
+                Dernières commandes
+              </h3>
+              <div className="space-y-3">
+                {orders.slice(0, 5).map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">
+                          {order.reference.slice(-2)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">
+                          {order.reference}
+                        </p>
+                        <p className="text-white/70 text-sm">
+                          {order.customerName} • {order.tiktokPseudo}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-cyan-400 font-bold">
+                        €{order.amount}
+                      </span>
+                      {getStatusBadge(order.status)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Orders Tab */}
+        {activeTab === "orders" && (
+          <div className="space-y-6">
+            {/* Filters */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                <input
+                  type="text"
+                  placeholder="Rechercher par référence, nom ou pseudo..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 backdrop-blur-sm"
+                />
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 backdrop-blur-sm"
+              >
+                <option value="all">Tous les statuts</option>
+                <option value="pending">En attente</option>
+                <option value="paid">Payé</option>
+                <option value="preparing">Préparation</option>
+                <option value="shipped">Expédié</option>
+                <option value="delivered">Livré</option>
+              </select>
+            </div>
+
+            {/* Orders List */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden">
+              <div className="p-6 border-b border-white/10">
+                <h3 className="text-xl font-bold text-white">
+                  Commandes ({filteredOrders.length})
+                </h3>
+              </div>
+              <div className="divide-y divide-white/10">
+                {filteredOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="p-6 hover:bg-white/5 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
+                          <span className="text-white font-bold">
+                            {order.reference.slice(-2)}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="text-white font-bold">
+                              {order.reference}
+                            </span>
+                            {getStatusBadge(order.status)}
+                          </div>
+                          <p className="text-white/70 text-sm">
+                            {order.customerName} • {order.tiktokPseudo}
+                          </p>
+                          <p className="text-white/50 text-xs">
+                            {new Date(order.createdAt).toLocaleString("fr-FR")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-cyan-400 font-bold text-lg">
+                            €{order.amount}
+                          </p>
+                          <p className="text-white/50 text-sm">
+                            {order.shippingMethod}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors">
+                            <Download className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Products Tab */}
+        {activeTab === "products" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold text-white">
+                Gestion des produits
+              </h3>
+              <button
+                onClick={() => {
+                  /* TODO: Implement new product modal */
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Nouveau produit
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h4 className="text-white font-bold text-lg">
+                        {product.name}
+                      </h4>
+                      <p className="text-white/70 text-sm mb-2">
+                        {product.reference}
+                      </p>
+                      <p className="text-white/60 text-sm">
+                        {product.description}
+                      </p>
+                    </div>
+                    <div
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        product.isActive
+                          ? "text-green-300 bg-green-500/20"
+                          : "text-red-300 bg-red-500/20"
+                      }`}
+                    >
+                      {product.isActive ? "Actif" : "Inactif"}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-cyan-400 font-bold text-xl">
+                      €{product.price}
+                    </span>
+                    <span className="text-white/70">
+                      Stock: {product.stock}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors">
+                      <Edit className="w-4 h-4" />
+                      Modifier
+                    </button>
+                    <button className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Order Detail Modal */}
+        {selectedOrder && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-neutral-900 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-white">
+                  Détails de la commande
+                </h3>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-white" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-white/70 text-sm">Référence</label>
+                    <p className="text-white font-bold text-lg">
+                      {selectedOrder.reference}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-white/70 text-sm">Statut</label>
+                    <div className="mt-1">
+                      {getStatusBadge(selectedOrder.status)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-white/70 text-sm">Client</label>
+                    <p className="text-white font-medium">
+                      {selectedOrder.customerName}
+                    </p>
+                    <p className="text-white/70 text-sm">
+                      {selectedOrder.tiktokPseudo}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-white/70 text-sm">Montant</label>
+                    <p className="text-cyan-400 font-bold text-xl">
+                      €{selectedOrder.amount}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-white/70 text-sm">
+                    Adresse de livraison
+                  </label>
+                  <div className="mt-1 p-4 bg-white/5 rounded-xl border border-white/10">
+                    <p className="text-white">{selectedOrder.address}</p>
+                    <p className="text-white">
+                      {selectedOrder.postalCode} {selectedOrder.city}
+                    </p>
+                    <p className="text-white/70 text-sm mt-2">
+                      {selectedOrder.email}
+                    </p>
+                    <p className="text-white/70 text-sm">
+                      {selectedOrder.phone}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all">
+                    <Download className="w-4 h-4" />
+                    Générer PDF
+                  </button>
+                  <button className="px-4 py-3 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-xl transition-colors">
+                    <CheckCircle className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
