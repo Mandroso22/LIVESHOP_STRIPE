@@ -123,15 +123,12 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
       subject: `Nouvelle commande - ${customerInfo.reference}`,
       text: getAdminEmailTemplate(customerInfo),
     });
-
-    // Envoi de l'email de confirmation au client
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: customerInfo.email,
       subject: `Confirmation de commande - L'Avenue 120`,
       html: getClientEmailTemplate(customerInfo),
     });
-
     return true;
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email:", error);

@@ -1,111 +1,127 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 export default function ReturnClient() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
-  );
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<
+    "loading" | "complete" | "incomplete" | "error"
+  >("loading");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
+    const sessionId = searchParams.get("session_id");
+
     if (!sessionId) {
       setStatus("error");
-      setMessage("Session ID manquant");
+      setErrorMessage(
+        "Session de paiement non trouvée. Veuillez réessayer ou contacter le support."
+      );
       return;
     }
 
-    fetch(`/api/check-payment-status?session_id=${sessionId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "complete") {
-          setStatus("success");
-          setMessage("Paiement réussi !");
-        } else {
-          setStatus("error");
-          setMessage("Le paiement n'a pas pu être confirmé");
+    const checkPaymentStatus = async () => {
+      try {
+        const response = await fetch(
+          `/api/check-payment-status?session_id=${sessionId}`
+        );
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "Erreur lors de la vérification du paiement"
+          );
         }
-      })
-      .catch(() => {
+
+        setStatus(data.status);
+      } catch (error) {
+        console.error("Erreur:", error);
         setStatus("error");
-        setMessage("Erreur lors de la vérification du paiement");
-      });
-  }, [sessionId]);
+        setErrorMessage(
+          "Une erreur est survenue lors de la vérification de votre paiement. " +
+            "Si votre paiement a été effectué, vous recevrez un email de confirmation. " +
+            "En cas de doute, n'hésitez pas à nous contacter."
+        );
+      }
+    };
+
+    checkPaymentStatus();
+  }, [searchParams]);
+
+  const renderContent = () => {
+    switch (status) {
+      case "loading":
+        return (
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
+            <p className="text-lg text-gray-600">
+              Vérification de votre paiement en cours...
+            </p>
+          </div>
+        );
+
+      case "complete":
+        return (
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <CheckCircle className="h-16 w-16 text-green-500" />
+            <h1 className="text-2xl font-bold text-gray-900">
+              Paiement confirmé !
+            </h1>
+            <p className="text-center text-gray-600 max-w-md">
+              Votre commande a été validée avec succès. Vous allez recevoir un
+              email de confirmation avec les détails de votre commande.
+            </p>
+            <div className="mt-4 text-sm text-gray-500">
+              <p>Merci de votre confiance !</p>
+              <p>L&apos;équipe L&apos;Avenue</p>
+            </div>
+          </div>
+        );
+
+      case "incomplete":
+        return (
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <XCircle className="h-16 w-16 text-yellow-500" />
+            <h1 className="text-2xl font-bold text-gray-900">
+              Paiement en attente
+            </h1>
+            <p className="text-center text-gray-600 max-w-md">
+              Votre paiement est en cours de traitement. Cela peut prendre
+              quelques minutes. Vous recevrez un email dès que votre paiement
+              sera confirmé.
+            </p>
+            <div className="mt-4 text-sm text-gray-500">
+              <p>
+                Si vous ne recevez pas d&apos;email dans les prochaines minutes,
+              </p>
+              <p>veuillez nous contacter à Lavenue120@gmail.com</p>
+            </div>
+          </div>
+        );
+
+      case "error":
+        return (
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <XCircle className="h-16 w-16 text-red-500" />
+            <h1 className="text-2xl font-bold text-gray-900">
+              Une erreur est survenue
+            </h1>
+            <p className="text-center text-gray-600 max-w-md">{errorMessage}</p>
+            <div className="mt-4 text-sm text-gray-500">
+              <p>Contactez-nous à Lavenue120@gmail.com</p>
+              <p>en mentionnant votre session de paiement</p>
+            </div>
+          </div>
+        );
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-400 to-stone-800 flex items-center justify-center">
-      <div className="max-w-md w-full mx-auto px-4 py-6">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-stone-100 uppercase tracking-wider mb-2">
-            L&apos;avenue 120
-          </h1>
-        </div>
-
-        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 text-center">
-          {status === "loading" && (
-            <div className="animate-pulse">
-              <div className="w-16 h-16 bg-white/10 rounded-full mx-auto mb-4" />
-              <div className="h-4 bg-white/10 rounded w-3/4 mx-auto mb-2" />
-              <div className="h-4 bg-white/10 rounded w-1/2 mx-auto" />
-            </div>
-          )}
-
-          {status === "success" && (
-            <>
-              <div className="w-16 h-16 bg-green-500/20 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 text-green-400" />
-              </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">
-                Paiement confirmé !
-              </h2>
-              <p className="text-white/70 mb-6">
-                Merci pour votre commande. Vous recevrez un email de
-                confirmation dans quelques instants.
-              </p>
-              <Link
-                href="/"
-                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all"
-              >
-                Retour à l&apos;accueil
-              </Link>
-            </>
-          )}
-
-          {status === "error" && (
-            <>
-              <div className="w-16 h-16 bg-red-500/20 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <XCircle className="w-8 h-8 text-red-400" />
-              </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">
-                Oups, quelque chose s&apos;est mal passé
-              </h2>
-              <p className="text-white/70 mb-6">{message}</p>
-              <Link
-                href="/"
-                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all"
-              >
-                Réessayer
-              </Link>
-            </>
-          )}
-        </div>
-
-        <div className="text-center mt-8 text-white/50 text-xs">
-          <p>🔒 Paiement sécurisé • Livraison rapide • Support client 24/7</p>
-          <a
-            href="https://makesocial.me"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mt-2 text-white/30 hover:text-white/50 transition-colors"
-          >
-            Powered by Makesocial.me
-          </a>
-        </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        {renderContent()}
       </div>
     </div>
   );
