@@ -37,7 +37,7 @@ export async function GET(request: Request) {
           tiktokPseudo: session.metadata?.tiktokPseudo || "",
         });
         await stripe.checkout.sessions.update(sessionId, {
-          metadata: { ...session.metadata, emailSent: "true" },
+          metadata: { ...session.metadata },
         });
       } catch (emailError) {
         console.error("Erreur lors de l'envoi de l'email:", emailError);
