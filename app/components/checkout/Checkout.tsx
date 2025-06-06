@@ -369,38 +369,46 @@ export default function CheckoutPage() {
                 key={step.id}
                 className="flex flex-col items-center relative z-10"
               >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-stone-900">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-stone-800 to-stone-900 shadow-lg">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-500 ${
                       currentStep > step.id
-                        ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-white"
+                        ? "bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-lg shadow-green-500/20 scale-110"
                         : currentStep === step.id
-                        ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white scale-110"
-                        : "bg-white/10 text-white/60"
+                        ? "bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 text-white shadow-lg shadow-pink-500/20 scale-110 animate-pulse"
+                        : "bg-gradient-to-br from-stone-700 to-stone-800 text-white/60"
                     }`}
                   >
                     {currentStep > step.id ? (
-                      <Check className="w-4 h-4" />
+                      <Check className="w-5 h-5" />
                     ) : (
                       step.id
                     )}
                   </div>
                 </div>
-                <div className="mt-2 text-center">
+                <div className="mt-3 text-center">
                   <div
-                    className={`text-xs font-medium ${
-                      currentStep >= step.id ? "text-white" : "text-white/60"
+                    className={`text-sm font-medium transition-colors duration-300 ${
+                      currentStep >= step.id ? "text-white" : "text-white/40"
                     }`}
                   >
                     {step.title}
+                  </div>
+                  <div
+                    className={`text-xs transition-colors duration-300 ${
+                      currentStep >= step.id ? "text-white/70" : "text-white/30"
+                    }`}
+                  >
+                    {step.subtitle}
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="absolute top-4 left-4 right-6 h-0.5 bg-white/10 -z-0"></div>
+          {/* Barre de progression */}
+          <div className="absolute top-5 left-4 right-6 h-1 bg-gradient-to-r from-stone-800 to-stone-900 rounded-full -z-0 shadow-inner"></div>
           <div
-            className="absolute top-4 left-4 h-0.5 bg-gradient-to-r from-pink-500 to-cyan-400 transition-all duration-500 -z-0"
+            className="absolute top-5 left-4 h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-full transition-all duration-500 -z-0 shadow-lg shadow-pink-500/20"
             style={{ width: getProgressWidth() }}
           ></div>
         </div>
