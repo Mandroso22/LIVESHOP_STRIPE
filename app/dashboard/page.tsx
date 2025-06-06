@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { ReactElement } from "react";
+import Link from "next/link";
 import {
   Package,
   Plus,
@@ -20,6 +21,9 @@ import {
   LucideIcon,
   Loader2,
   MapPin,
+  Copy,
+  Check,
+  FileText,
 } from "lucide-react";
 
 type OrderStatus = "pending" | "paid" | "preparing" | "shipped" | "delivered";
@@ -106,6 +110,7 @@ export default function AdminDashboard(): ReactElement {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
 
   // Charger les commandes au montage du composant
   useEffect(() => {
@@ -185,6 +190,16 @@ export default function AdminDashboard(): ReactElement {
     activeProducts: products.filter((product) => product.isActive).length,
   };
 
+  const handleCopyEmail = async (email: string) => {
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopiedEmail(email);
+      setTimeout(() => setCopiedEmail(null), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error("Erreur lors de la copie:", err);
+    }
+  };
+
   // Modifier la section de chargement des commandes
   if (isLoading) {
     return (
@@ -221,9 +236,11 @@ export default function AdminDashboard(): ReactElement {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-stone-100 uppercase tracking-wider">
-                L&apos;avenue 120
-              </h1>
+              <Link href="/" className="block">
+                <h1 className="text-3xl font-bold text-stone-100 uppercase tracking-wider hover:text-white/90 transition-colors">
+                  L&apos;avenue 120
+                </h1>
+              </Link>
               <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-3 py-1 mt-2">
                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
                 <span className="text-sm text-amber-300 font-medium">
@@ -451,6 +468,15 @@ export default function AdminDashboard(): ReactElement {
                           >
                             <Eye className="w-4 h-4" />
                           </button>
+                          <a
+                            href={`/api/generate-shipping-label?session_id=${order.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-colors"
+                            title="Télécharger le bon de livraison"
+                          >
+                            <FileText className="w-4 h-4" />
+                          </a>
                           <button
                             className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors"
                             title="Télécharger"
@@ -622,9 +648,30 @@ export default function AdminDashboard(): ReactElement {
                     </div>
                     <div>
                       <label className="text-white/70 text-sm">Contact</label>
-                      <p className="text-white/90 text-sm">
-                        {selectedOrder.email}
-                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-white/90 text-sm flex-1">
+                          {selectedOrder.email}
+                        </p>
+                        <button
+                          onClick={() => handleCopyEmail(selectedOrder.email)}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            copiedEmail === selectedOrder.email
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-white/10 hover:bg-white/20 text-white/70"
+                          }`}
+                          title={
+                            copiedEmail === selectedOrder.email
+                              ? "Email copié !"
+                              : "Copier l'email"
+                          }
+                        >
+                          {copiedEmail === selectedOrder.email ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                       <p className="text-white/90 text-sm mt-1">
                         {selectedOrder.phone}
                       </p>

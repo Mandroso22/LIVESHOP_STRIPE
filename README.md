@@ -6,12 +6,20 @@ A modern and secure web application for managing payments during L'Avenue 120's 
 
 - 💳 Complete Stripe integration for secure payments
 - 📱 Modern and responsive user interface
-- 🔄 3-step payment process
+- 🔄 3-step payment process with enhanced stepper design
 - 🚚 Flexible shipping options (Chronopost Express and Standard)
-- 📧 Automatic email notifications
+- 📧 Automatic email notifications with HTML templates
+  - Client confirmation email with order details
+  - Admin notification with order summary
+  - Secure SMTP configuration (Gmail/Workspace)
 - 🔒 Enhanced security with HTTPS and data validation
 - 🎨 Modern design with smooth animations
 - 📊 Real-time order tracking
+- 📧 Robust email system with:
+  - Payment confirmation triggers
+  - Error handling and logging
+  - SMTP verification
+  - Environment variable validation
 
 ## 🛠️ Tech Stack
 
@@ -107,6 +115,12 @@ The project is optimized for Vercel deployment:
 - Components are optimized for performance
 - Code follows TypeScript best practices
 - Tests to be implemented (TODO)
+- Email system improvements:
+  - Emails sent only after payment confirmation
+  - SMTP configuration with port 465 (SSL)
+  - Automatic password cleaning for app passwords
+  - Detailed error logging and status reporting
+  - Support for both Gmail and Workspace email providers
 
 ## 🤝 Contributing
 
@@ -141,12 +155,20 @@ Une application web moderne et sécurisée pour gérer les paiements lors des li
 
 - 💳 Intégration complète avec Stripe pour les paiements sécurisés
 - 📱 Interface utilisateur moderne et responsive
-- 🔄 Processus de paiement en 3 étapes
+- 🔄 Processus de paiement en 3 étapes avec design amélioré du stepper
 - 🚚 Options de livraison flexibles (Chronopost Express et Standard)
-- 📧 Notifications par email automatiques
+- 📧 Notifications par email automatiques avec templates HTML
+  - Email de confirmation client avec détails de la commande
+  - Notification admin avec résumé de la commande
+  - Configuration SMTP sécurisée (Gmail/Workspace)
 - 🔒 Sécurité renforcée avec HTTPS et validation des données
 - 🎨 Design moderne avec animations fluides
 - 📊 Suivi des commandes en temps réel
+- 📧 Système d'email robuste avec :
+  - Déclenchement après confirmation du paiement
+  - Gestion des erreurs et journalisation
+  - Vérification SMTP
+  - Validation des variables d'environnement
 
 ## 🛠️ Technologies Utilisées
 
@@ -242,6 +264,12 @@ Le projet est optimisé pour un déploiement sur Vercel :
 - Les composants sont optimisés pour les performances
 - Le code suit les meilleures pratiques TypeScript
 - Les tests sont à implémenter (TODO)
+- Améliorations du système d'email :
+  - Emails envoyés uniquement après confirmation du paiement
+  - Configuration SMTP avec port 465 (SSL)
+  - Nettoyage automatique des mots de passe d'application
+  - Journalisation détaillée des erreurs et rapports de statut
+  - Support des fournisseurs d'email Gmail et Workspace
 
 ## 🤝 Contribution
 

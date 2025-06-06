@@ -1,15 +1,63 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Satoshi Font Family */
+@font-face {
+  font-family: "Satoshi";
+  src: url("/font/Satoshi-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-@theme inline {
+@font-face {
+  font-family: "Satoshi";
+  src: url("/font/Satoshi-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/font/Satoshi-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* General Sans Font Family */
+@font-face {
+  font-family: "GeneralSans";
+  src: url("/font/GeneralSans-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Couleurs */
+  --background: #ffffff;
+  --foreground: #171717;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* Polices */
+  --font-general: "GeneralSans", system-ui, -apple-system, sans-serif;
+  --font-satoshi: "Satoshi", system-ui, -apple-system, sans-serif;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-title: var(--font-general);
+  --font-body: var(--font-satoshi);
+
+  /* Tailles de police recommandées */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +67,151 @@
   }
 }
 
+/* Styles de base */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Classes utilitaires pour les polices */
+.font-title {
+  font-family: var(--font-title);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Styles typographiques spécifiques */
+.title-large {
+  font-family: var(--font-title);
+  font-size: var(--text-3xl);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.title-medium {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.title-small {
+  font-family: var(--font-title);
+  font-size: var(--text-xl);
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.body-large {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.body-regular {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.body-small {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Styles pour les éléments de formulaire */
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 400;
+}
+
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--font-body);
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+/* Styles pour les boutons */
+button {
+  font-family: var(--font-body);
+  font-weight: 500; /* Medium */
+}
+
+/* Styles pour les étapes */
+.step-title {
+  font-family: var(--font-title);
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+
+.step-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* Classes utilitaires pour les poids de police */
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* Styles spécifiques pour les boutons d'action */
+.btn-primary {
+  font-family: var(--font-body);
+  font-weight: 500; /* Medium */
+  font-size: var(--text-base);
+  letter-spacing: 0.01em;
+}
+
+/* Styles pour les messages d'erreur */
+.error-text {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  color: #ef4444;
+}
+
+/* Styles pour les labels de formulaire */
+.form-label {
+  font-family: var(--font-body);
+  font-weight: 500; /* Medium */
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Styles pour les titres de section */
+.section-title {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: var(--text-2xl);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
 }

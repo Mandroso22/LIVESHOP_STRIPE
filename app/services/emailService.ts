@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-interface CustomerInfo {
+export interface CustomerInfo {
   firstName: string;
   lastName: string;
   email: string;
