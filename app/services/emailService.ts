@@ -117,12 +117,14 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
+      replyTo: "lavenue120@gmail.com",
       to: adminEmail,
       subject: `Nouvelle commande - ${customerInfo.reference}`,
       text: getAdminEmailTemplate(customerInfo),
     });
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
+      replyTo: "lavenue120@gmail.com",
       to: customerInfo.email,
       subject: `Confirmation de commande - L'Avenue 120`,
       html: getClientEmailTemplate(customerInfo),
