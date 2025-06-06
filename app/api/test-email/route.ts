@@ -3,11 +3,11 @@ import { sendOrderConfirmationEmail } from "../../services/emailService";
 
 export async function GET() {
   try {
-    // Données de test
+    // Données de test avec une adresse email différente
     const testCustomerInfo = {
       firstName: "Test",
       lastName: "Client",
-      email: "lavenue120@gmail.com", // Email du client pour le test
+      email: "test@example.com", // Email de test différent de l'admin
       phone: "0612345678",
       address: "123 Rue de Test",
       city: "Paris",
@@ -22,14 +22,14 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "Email de test envoyé avec succès",
+      message: "Emails de test envoyés avec succès (admin et client)",
     });
   } catch (error) {
-    console.error("Erreur lors de l'envoi de l'email de test:", error);
+    console.error("Erreur lors de l'envoi des emails de test:", error);
     return NextResponse.json(
       {
         success: false,
-        error: "Erreur lors de l'envoi de l'email de test",
+        error: "Erreur lors de l'envoi des emails de test",
         details: error instanceof Error ? error.message : "Erreur inconnue",
       },
       { status: 500 }

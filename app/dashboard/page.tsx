@@ -19,6 +19,7 @@ import {
   X,
   LucideIcon,
   Loader2,
+  MapPin,
 } from "lucide-react";
 
 type OrderStatus = "pending" | "paid" | "preparing" | "shipped" | "delivered";
@@ -543,9 +544,14 @@ export default function AdminDashboard(): ReactElement {
             <div className="bg-neutral-900 rounded-2xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-white/10 sticky top-0 bg-neutral-900 z-10">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-2xl font-bold text-white">
-                    Détails de la commande
-                  </h3>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">
+                      Détails de la commande
+                    </h3>
+                    <p className="text-white/70 text-sm mt-1">
+                      Référence: {selectedOrder.reference}
+                    </p>
+                  </div>
                   <button
                     onClick={() => setSelectedOrder(null)}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -559,61 +565,89 @@ export default function AdminDashboard(): ReactElement {
                 {/* Informations principales */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="text-white/70 text-sm">Référence</label>
-                    <p className="text-white font-bold text-lg">
-                      {selectedOrder.reference}
-                    </p>
-                  </div>
-                  <div>
                     <label className="text-white/70 text-sm">Statut</label>
                     <div className="mt-1">
                       {getStatusBadge(selectedOrder.status)}
                     </div>
-                  </div>
-                </div>
-
-                {/* Informations client */}
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-white/70 text-sm">Client</label>
-                    <p className="text-white font-medium">
-                      {selectedOrder.customerName}
-                    </p>
-                    <p className="text-white/70 text-sm">
-                      {selectedOrder.tiktokPseudo}
-                    </p>
-                    <p className="text-white/70 text-sm mt-2">
-                      {selectedOrder.email}
-                    </p>
-                    <p className="text-white/70 text-sm">
-                      {selectedOrder.phone}
-                    </p>
                   </div>
                   <div>
                     <label className="text-white/70 text-sm">Montant</label>
                     <p className="text-cyan-400 font-bold text-xl">
                       €{selectedOrder.amount}
                     </p>
-                    <p className="text-white/70 text-sm mt-2">
-                      Mode de livraison: {selectedOrder.shippingMethod}
-                    </p>
+                  </div>
+                </div>
+
+                {/* Informations client */}
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                    <Users className="w-4 h-4 text-pink-400" />
+                    Informations client
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-white/70 text-sm">Client</label>
+                      <p className="text-white font-medium">
+                        {selectedOrder.customerName}
+                      </p>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-pink-400 font-medium">
+                          {selectedOrder.tiktokPseudo}
+                        </span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              selectedOrder.tiktokPseudo
+                            );
+                            alert("Pseudo TikTok copié !");
+                          }}
+                          className="p-1 hover:bg-white/10 rounded transition-colors"
+                          title="Copier le pseudo"
+                        >
+                          <svg
+                            className="w-4 h-4 text-white/70"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-white/70 text-sm">Contact</label>
+                      <p className="text-white/90 text-sm">
+                        {selectedOrder.email}
+                      </p>
+                      <p className="text-white/90 text-sm mt-1">
+                        {selectedOrder.phone}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
                 {/* Adresse de livraison */}
-                <div>
-                  <label className="text-white/70 text-sm block mb-2">
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-blue-400" />
                     Adresse de livraison
-                  </label>
-                  <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div className="space-y-1">
-                      <p className="text-white font-medium">
-                        {selectedOrder.address}
-                      </p>
-                      <p className="text-white">
-                        {selectedOrder.postalCode} {selectedOrder.city}
-                      </p>
-                    </div>
+                  </h4>
+                  <div className="space-y-1">
+                    <p className="text-white font-medium">
+                      {selectedOrder.address}
+                    </p>
+                    <p className="text-white">
+                      {selectedOrder.postalCode} {selectedOrder.city}
+                    </p>
+                    <p className="text-white/70 text-sm mt-2">
+                      Mode de livraison: {selectedOrder.shippingMethod}
+                    </p>
                   </div>
                 </div>
 

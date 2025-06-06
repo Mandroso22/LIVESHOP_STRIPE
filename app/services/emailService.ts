@@ -115,6 +115,7 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
   const adminEmail = "lavenue120@gmail.com";
 
   try {
+    // Email pour l'admin
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       replyTo: "lavenue120@gmail.com",
@@ -122,6 +123,8 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
       subject: `Nouvelle commande - ${customerInfo.reference}`,
       text: getAdminEmailTemplate(customerInfo),
     });
+
+    // Email pour le client
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       replyTo: "lavenue120@gmail.com",
@@ -129,6 +132,7 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
       subject: `Confirmation de commande - L'Avenue 120`,
       html: getClientEmailTemplate(customerInfo),
     });
+
     return true;
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email:", error);
