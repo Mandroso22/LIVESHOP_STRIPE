@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ReactElement } from "react";
 import {
   Package,
@@ -18,6 +18,7 @@ import {
   Video,
   X,
   LucideIcon,
+  Loader2,
 } from "lucide-react";
 
 type OrderStatus = "pending" | "paid" | "preparing" | "shipped" | "delivered";
@@ -101,41 +102,33 @@ export default function AdminDashboard(): ReactElement {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Données de démonstration
-  const [orders] = useState<Order[]>([
-    {
-      id: "1",
-      reference: "REF001",
-      amount: 45.9,
-      tiktokPseudo: "@user123",
-      customerName: "Marie Dupont",
-      email: "marie@email.com",
-      phone: "+33 6 12 34 56 78",
-      address: "123 Rue de la Paix",
-      city: "Paris",
-      postalCode: "75001",
-      shippingMethod: "chronopost",
-      status: "paid",
-      createdAt: "2025-06-05T10:30:00Z",
-      paidAt: "2025-06-05T10:35:00Z",
-    },
-    {
-      id: "2",
-      reference: "REF002",
-      amount: 29.9,
-      tiktokPseudo: "@viewer456",
-      customerName: "Jean Martin",
-      email: "jean@email.com",
-      phone: "+33 6 98 76 54 32",
-      address: "456 Avenue des Champs",
-      city: "Lyon",
-      postalCode: "69000",
-      shippingMethod: "standard",
-      status: "pending",
-      createdAt: "2025-06-05T14:15:00Z",
-    },
-  ]);
+  // Charger les commandes au montage du composant
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/orders");
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération des commandes");
+        }
+        const data = await response.json();
+        setOrders(data.orders);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Une erreur est survenue"
+        );
+        console.error("Erreur:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   const [products] = useState<Product[]>([
     {
@@ -190,6 +183,35 @@ export default function AdminDashboard(): ReactElement {
     pendingOrders: orders.filter((order) => order.status === "pending").length,
     activeProducts: products.filter((product) => product.isActive).length,
   };
+
+  // Modifier la section de chargement des commandes
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-white animate-spin mx-auto mb-4" />
+          <p className="text-white/70">Chargement des commandes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 flex items-center justify-center">
+        <div className="text-center">
+          <X className="w-8 h-8 text-red-400 mx-auto mb-4" />
+          <p className="text-white/70">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
@@ -387,13 +409,13 @@ export default function AdminDashboard(): ReactElement {
                     className="p-6 hover:bg-white/5 transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 flex-1">
                         <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
                           <span className="text-white font-bold">
                             {order.reference.slice(-2)}
                           </span>
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <div className="flex items-center gap-3 mb-1">
                             <span className="text-white font-bold">
                               {order.reference}
@@ -402,6 +424,9 @@ export default function AdminDashboard(): ReactElement {
                           </div>
                           <p className="text-white/70 text-sm">
                             {order.customerName} • {order.tiktokPseudo}
+                          </p>
+                          <p className="text-white/50 text-xs mt-1">
+                            {order.address}, {order.postalCode} {order.city}
                           </p>
                           <p className="text-white/50 text-xs">
                             {new Date(order.createdAt).toLocaleString("fr-FR")}
@@ -421,10 +446,14 @@ export default function AdminDashboard(): ReactElement {
                           <button
                             onClick={() => setSelectedOrder(order)}
                             className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
+                            title="Voir les détails"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors">
+                          <button
+                            className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors"
+                            title="Télécharger"
+                          >
                             <Download className="w-4 h-4" />
                           </button>
                         </div>
@@ -511,20 +540,23 @@ export default function AdminDashboard(): ReactElement {
         {/* Order Detail Modal */}
         {selectedOrder && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-neutral-900 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold text-white">
-                  Détails de la commande
-                </h3>
-                <button
-                  onClick={() => setSelectedOrder(null)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-white" />
-                </button>
+            <div className="bg-neutral-900 rounded-2xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-white/10 sticky top-0 bg-neutral-900 z-10">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-2xl font-bold text-white">
+                    Détails de la commande
+                  </h3>
+                  <button
+                    onClick={() => setSelectedOrder(null)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-white" />
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-6">
+              <div className="p-6 space-y-6">
+                {/* Informations principales */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="text-white/70 text-sm">Référence</label>
@@ -540,6 +572,7 @@ export default function AdminDashboard(): ReactElement {
                   </div>
                 </div>
 
+                {/* Informations client */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="text-white/70 text-sm">Client</label>
@@ -549,24 +582,6 @@ export default function AdminDashboard(): ReactElement {
                     <p className="text-white/70 text-sm">
                       {selectedOrder.tiktokPseudo}
                     </p>
-                  </div>
-                  <div>
-                    <label className="text-white/70 text-sm">Montant</label>
-                    <p className="text-cyan-400 font-bold text-xl">
-                      €{selectedOrder.amount}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-white/70 text-sm">
-                    Adresse de livraison
-                  </label>
-                  <div className="mt-1 p-4 bg-white/5 rounded-xl border border-white/10">
-                    <p className="text-white">{selectedOrder.address}</p>
-                    <p className="text-white">
-                      {selectedOrder.postalCode} {selectedOrder.city}
-                    </p>
                     <p className="text-white/70 text-sm mt-2">
                       {selectedOrder.email}
                     </p>
@@ -574,16 +589,56 @@ export default function AdminDashboard(): ReactElement {
                       {selectedOrder.phone}
                     </p>
                   </div>
+                  <div>
+                    <label className="text-white/70 text-sm">Montant</label>
+                    <p className="text-cyan-400 font-bold text-xl">
+                      €{selectedOrder.amount}
+                    </p>
+                    <p className="text-white/70 text-sm mt-2">
+                      Mode de livraison: {selectedOrder.shippingMethod}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex gap-3">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all">
-                    <Download className="w-4 h-4" />
-                    Générer PDF
-                  </button>
-                  <button className="px-4 py-3 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-xl transition-colors">
-                    <CheckCircle className="w-4 h-4" />
-                  </button>
+                {/* Adresse de livraison */}
+                <div>
+                  <label className="text-white/70 text-sm block mb-2">
+                    Adresse de livraison
+                  </label>
+                  <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="space-y-1">
+                      <p className="text-white font-medium">
+                        {selectedOrder.address}
+                      </p>
+                      <p className="text-white">
+                        {selectedOrder.postalCode} {selectedOrder.city}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dates */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-white/70 text-sm">
+                      Date de commande
+                    </label>
+                    <p className="text-white">
+                      {new Date(selectedOrder.createdAt).toLocaleString(
+                        "fr-FR"
+                      )}
+                    </p>
+                  </div>
+                  {selectedOrder.paidAt && (
+                    <div>
+                      <label className="text-white/70 text-sm">
+                        Date de paiement
+                      </label>
+                      <p className="text-white">
+                        {new Date(selectedOrder.paidAt).toLocaleString("fr-FR")}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

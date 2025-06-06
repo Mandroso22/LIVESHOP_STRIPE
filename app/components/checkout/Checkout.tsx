@@ -101,38 +101,70 @@ export default function CheckoutPage() {
     if (currentStep === 1) {
       if (!formData.reference.trim()) {
         newErrors.reference = "Veuillez remplir le numéro de référence";
+      } else if (!/^[A-Za-z0-9-]+$/.test(formData.reference)) {
+        newErrors.reference =
+          "La référence ne doit contenir que des lettres, chiffres et tirets";
       }
+
       if (!formData.amount.trim()) {
         newErrors.amount = "Veuillez indiquer le montant";
+      } else if (parseFloat(formData.amount) <= 0) {
+        newErrors.amount = "Le montant doit être supérieur à 0";
+      } else if (parseFloat(formData.amount) > 1000) {
+        newErrors.amount = "Le montant maximum est de 1000€";
       }
+
       if (!formData.tiktokPseudo.trim()) {
-        newErrors.tiktokPseudo = "Veuillez indiquer votre pseudo ";
+        newErrors.tiktokPseudo = "Veuillez indiquer votre pseudo TikTok";
+      } else if (!formData.tiktokPseudo.startsWith("@")) {
+        newErrors.tiktokPseudo = "Le pseudo TikTok doit commencer par @";
       }
     }
 
     if (currentStep === 2) {
       if (!formData.firstName.trim()) {
         newErrors.firstName = "Veuillez remplir votre prénom";
+      } else if (formData.firstName.length < 2) {
+        newErrors.firstName = "Le prénom doit contenir au moins 2 caractères";
       }
+
       if (!formData.lastName.trim()) {
         newErrors.lastName = "Veuillez remplir votre nom";
+      } else if (formData.lastName.length < 2) {
+        newErrors.lastName = "Le nom doit contenir au moins 2 caractères";
       }
+
       if (!formData.email.trim()) {
         newErrors.email = "Veuillez remplir votre email";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
         newErrors.email = "Veuillez entrer un email valide";
       }
+
       if (!formData.phone.trim()) {
         newErrors.phone = "Veuillez remplir votre numéro de téléphone";
+      } else if (
+        !/^(\+33|0)[1-9](\d{2}){4}$/.test(formData.phone.replace(/\s/g, ""))
+      ) {
+        newErrors.phone =
+          "Veuillez entrer un numéro de téléphone français valide";
       }
+
       if (!formData.address.trim()) {
         newErrors.address = "Veuillez remplir votre adresse";
+      } else if (formData.address.length < 5) {
+        newErrors.address = "L'adresse doit contenir au moins 5 caractères";
       }
+
       if (!formData.city.trim()) {
         newErrors.city = "Veuillez remplir votre ville";
+      } else if (formData.city.length < 2) {
+        newErrors.city = "La ville doit contenir au moins 2 caractères";
       }
+
       if (!formData.postalCode.trim()) {
         newErrors.postalCode = "Veuillez remplir votre code postal";
+      } else if (!/^[0-9]{5}$/.test(formData.postalCode)) {
+        newErrors.postalCode = "Le code postal doit contenir 5 chiffres";
       }
     }
 
@@ -161,7 +193,31 @@ export default function CheckoutPage() {
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Nettoyage des entrées selon le champ
+    let cleanedValue = value;
+
+    switch (field) {
+      case "phone":
+        // Ne garde que les chiffres et le + pour le téléphone
+        cleanedValue = value.replace(/[^\d+]/g, "");
+        break;
+      case "postalCode":
+        // Ne garde que les chiffres pour le code postal
+        cleanedValue = value.replace(/\D/g, "").slice(0, 5);
+        break;
+      case "email":
+        // Convertit en minuscules pour l'email
+        cleanedValue = value.toLowerCase();
+        break;
+      case "tiktokPseudo":
+        // Assure que le pseudo TikTok commence par @
+        if (!value.startsWith("@") && value.length > 0) {
+          cleanedValue = "@" + value;
+        }
+        break;
+    }
+
+    setFormData((prev) => ({ ...prev, [field]: cleanedValue }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
@@ -214,7 +270,6 @@ export default function CheckoutPage() {
     }
   };
 
-  // Si erreur de configuration Stripe, afficher un message
   if (stripeError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 animate-[shimmer_4s_linear_infinite] flex items-center justify-center">
