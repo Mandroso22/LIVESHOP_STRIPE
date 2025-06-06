@@ -15,13 +15,11 @@ export async function GET(request: Request) {
     }
 
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["metadata"], // Pour avoir accès aux métadonnées
+      expand: ["metadata"],
     });
 
-    // Vérifier si le paiement est complet
     if (session.payment_status === "paid") {
       try {
-        // Envoyer l'email de confirmation
         await sendOrderConfirmationEmail({
           firstName: session.metadata?.firstName || "",
           lastName: session.metadata?.lastName || "",
@@ -38,21 +36,15 @@ export async function GET(request: Request) {
           shippingMethod: session.metadata?.shippingMethod || "",
           tiktokPseudo: session.metadata?.tiktokPseudo || "",
         });
-
-        // Marquer l'email comme envoyé dans les métadonnées
         await stripe.checkout.sessions.update(sessionId, {
           metadata: { ...session.metadata, emailSent: "true" },
         });
       } catch (emailError) {
         console.error("Erreur lors de l'envoi de l'email:", emailError);
       }
-
-      // On continue même si l'email échoue
-
       return NextResponse.json({ status: "complete" });
     }
 
-    // Si le paiement n'est pas encore complété
     return NextResponse.json({ status: "incomplete" });
   } catch (error) {
     console.error("Erreur lors de la vérification du statut:", error);
