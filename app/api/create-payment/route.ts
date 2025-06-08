@@ -19,6 +19,15 @@ export async function POST(request: Request) {
       tiktokPseudo,
     } = body;
 
+    if (!process.env.NEXT_PUBLIC_BASE_URL) {
+      throw new Error(
+        "NEXT_PUBLIC_BASE_URL n'est pas définie dans les variables d'environnement"
+      );
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -50,9 +59,11 @@ export async function POST(request: Request) {
         email,
       },
       ui_mode: "embedded",
-      return_url: `${
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      }/return?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: successUrl,
+      payment_intent_data: {
+        receipt_email: email,
+        description: `Commande ${reference} - L'avenue 120`,
+      },
     });
 
     return NextResponse.json({ clientSecret: session.client_secret });

@@ -17,7 +17,7 @@ export default function ReturnClient() {
     if (!sessionId) {
       setStatus("error");
       setErrorMessage(
-        "Session de paiement non trouvée. Veuillez réessayer ou contacter le support."
+        "Session de paiement non trouvée. Veuillez vérifier votre email pour la confirmation de commande ou contacter le support."
       );
       return;
     }
@@ -36,13 +36,19 @@ export default function ReturnClient() {
         }
 
         setStatus(data.status);
+
+        if (data.status === "complete") {
+          setTimeout(() => {
+            window.location.href = `/success?session_id=${sessionId}`;
+          }, 5000);
+        }
       } catch (error) {
         console.error("Erreur:", error);
         setStatus("error");
         setErrorMessage(
           "Une erreur est survenue lors de la vérification de votre paiement. " +
             "Si votre paiement a été effectué, vous recevrez un email de confirmation. " +
-            "En cas de doute, n'hésitez pas à nous contacter."
+            "En cas de doute, n'hésitez pas à nous contacter à lavenue120@gmail.com"
         );
       }
     };
@@ -59,6 +65,10 @@ export default function ReturnClient() {
             <p className="text-lg text-gray-600">
               Vérification de votre paiement en cours...
             </p>
+            <p className="text-sm text-gray-500">
+              Vous allez être redirigé automatiquement une fois la vérification
+              terminée.
+            </p>
           </div>
         );
 
@@ -72,6 +82,9 @@ export default function ReturnClient() {
             <p className="text-center text-gray-600 max-w-md">
               Votre commande a été validée avec succès. Vous allez recevoir un
               email de confirmation avec les détails de votre commande.
+            </p>
+            <p className="text-sm text-gray-500">
+              Redirection vers la page de confirmation dans quelques secondes...
             </p>
             <div className="mt-4 text-sm text-gray-500">
               <p>Merci de votre confiance !</p>
