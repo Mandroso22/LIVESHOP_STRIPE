@@ -469,7 +469,7 @@ export default function CheckoutPage() {
                       placeholder="0.00"
                       className={`w-full pl-8 pr-4 py-3 bg-white/5 border ${
                         errors.amount ? "border-red-400/50" : "border-white/10"
-                      } rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 backdrop-blur-sm transition-all`}
+                      } rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50  transition-all`}
                     />
                   </div>
                   {errors.amount && (
