@@ -49,9 +49,6 @@ export async function POST(request: Request) {
         email,
       },
       ui_mode: "embedded",
-      return_url: `${request.headers.get(
-        "origin"
-      )}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return NextResponse.json({ clientSecret: session.client_secret });

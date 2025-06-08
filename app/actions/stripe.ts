@@ -1,7 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
-
 import { stripe } from "../lib/stripe";
 
 interface PaymentData {
@@ -15,8 +13,6 @@ interface PaymentData {
 }
 
 export async function fetchClientSecret(data: PaymentData) {
-  const origin = (await headers()).get("origin");
-
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: [
@@ -45,7 +41,7 @@ export async function fetchClientSecret(data: PaymentData) {
     ],
     mode: "payment",
     customer_email: data.email,
-    return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
+    ui_mode: "embedded",
   });
 
   return session.client_secret;

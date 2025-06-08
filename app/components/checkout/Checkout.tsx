@@ -293,7 +293,13 @@ export default function CheckoutPage() {
                 options={{
                   clientSecret,
                   onComplete: () => {
-                    window.location.href = "/return";
+                    const returnUrl = new URL(window.location.href);
+                    const sessionId = returnUrl.searchParams.get("session_id");
+                    if (sessionId) {
+                      window.location.href = `/return?session_id=${sessionId}`;
+                    } else {
+                      window.location.href = "/return";
+                    }
                   },
                 }}
               >

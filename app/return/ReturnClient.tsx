@@ -96,7 +96,10 @@ export default function ReturnClient() {
               <p>
                 Si vous ne recevez pas d&apos;email dans les prochaines minutes,
               </p>
-              <p>veuillez nous contacter à lavenue120@gmail.com</p>
+              <p>
+                veuillez nous contacter à lavenue120@gmail.com ou via Tiktok
+                @lavenue120
+              </p>
             </div>
           </div>
         );

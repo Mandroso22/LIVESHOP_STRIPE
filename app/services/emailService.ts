@@ -131,7 +131,7 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
 
   try {
     const adminInfo = await transporter.sendMail({
-      from: `"L'Avenue 120" <${senderEmail}>`,
+      from: senderEmail,
       replyTo: adminEmail,
       to: adminEmail,
       subject: `Nouvelle commande - ${customerInfo.reference}`,
@@ -149,7 +149,7 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
 
     // Email pour le client
     const clientInfo = await transporter.sendMail({
-      from: `"L'Avenue 120" <${senderEmail}>`,
+      from: senderEmail,
       replyTo: adminEmail,
       to: customerInfo.email,
       subject: `Confirmation de commande - L'Avenue 120`,
