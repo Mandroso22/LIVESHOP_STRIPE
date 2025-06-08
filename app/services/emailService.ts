@@ -123,13 +123,39 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
   const adminEmail = "lavenue120@gmail.com";
   const senderEmail = process.env.EMAIL_USER;
 
+  console.log("Début de l'envoi d'email avec les informations:", {
+    adminEmail,
+    senderEmail,
+    customerEmail: customerInfo.email,
+    reference: customerInfo.reference,
+  });
+
   if (!senderEmail || !process.env.EMAIL_PASSWORD) {
+    console.error("Configuration email manquante:", {
+      hasEmailUser: !!senderEmail,
+      hasEmailPassword: !!process.env.EMAIL_PASSWORD,
+    });
     throw new Error(
       "Configuration email incomplète: EMAIL_USER ou EMAIL_PASSWORD manquant"
     );
   }
 
   try {
+    // Vérification du transporteur
+    console.log("Vérification du transporteur SMTP...");
+    await new Promise((resolve, reject) => {
+      transporter.verify((error, success) => {
+        if (error) {
+          console.error("Erreur de vérification SMTP:", error);
+          reject(error);
+        } else {
+          console.log("Transporteur SMTP vérifié avec succès");
+          resolve(success);
+        }
+      });
+    });
+
+    console.log("Envoi de l'email admin...");
     const adminInfo = await transporter.sendMail({
       from: senderEmail,
       replyTo: adminEmail,
@@ -137,17 +163,23 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
       subject: `Nouvelle commande - ${customerInfo.reference}`,
       text: getAdminEmailTemplate(customerInfo),
     });
+
     if (!adminInfo.messageId) {
+      console.error("Échec de l'envoi de l'email admin - pas de messageId");
       throw new Error("Erreur lors de l'envoi de l'email admin");
-    } else {
-      console.log("Message admin envoyé:", adminInfo.messageId);
-      console.log(
-        "Preview URL admin:",
-        nodemailer.getTestMessageUrl(adminInfo)
-      );
     }
 
+    console.log("Email admin envoyé avec succès:", {
+      messageId: adminInfo.messageId,
+      previewUrl: nodemailer.getTestMessageUrl(adminInfo),
+    });
+
     // Email pour le client
+    console.log("Envoi de l'email client...", {
+      to: customerInfo.email,
+      from: senderEmail,
+    });
+
     const clientInfo = await transporter.sendMail({
       from: senderEmail,
       replyTo: adminEmail,
@@ -155,15 +187,16 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
       subject: `Confirmation de commande - L'Avenue 120`,
       html: getClientEmailTemplate(customerInfo),
     });
+
     if (!clientInfo.messageId) {
+      console.error("Échec de l'envoi de l'email client - pas de messageId");
       throw new Error("Erreur lors de l'envoi de l'email client");
-    } else {
-      console.log("Message client envoyé:", clientInfo.messageId);
-      console.log(
-        "Preview URL client:",
-        nodemailer.getTestMessageUrl(clientInfo)
-      );
     }
+
+    console.log("Email client envoyé avec succès:", {
+      messageId: clientInfo.messageId,
+      previewUrl: nodemailer.getTestMessageUrl(clientInfo),
+    });
 
     return {
       success: Boolean(adminInfo.messageId && clientInfo.messageId),
@@ -173,7 +206,21 @@ export async function sendOrderConfirmationEmail(customerInfo: CustomerInfo) {
       clientPreviewUrl: nodemailer.getTestMessageUrl(clientInfo),
     };
   } catch (error) {
-    console.error("Erreur lors de l'envoi de l'email:", error);
+    console.error("Erreur détaillée lors de l'envoi d'email:", {
+      error:
+        error instanceof Error
+          ? {
+              message: error.message,
+              stack: error.stack,
+              name: error.name,
+            }
+          : error,
+      customerInfo: {
+        email: customerInfo.email,
+        reference: customerInfo.reference,
+        // Ne pas logger les données sensibles
+      },
+    });
     throw new Error(
       `Erreur lors de l'envoi de l'email: ${
         error instanceof Error ? error.message : "Erreur inconnue"

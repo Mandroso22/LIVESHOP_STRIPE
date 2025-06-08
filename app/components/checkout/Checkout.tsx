@@ -436,7 +436,7 @@ export default function CheckoutPage() {
                     onChange={(e) =>
                       handleInputChange("reference", e.target.value)
                     }
-                    placeholder="Ex: REF-123"
+                    placeholder="Ex: 123-456"
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all"
                   />
                   {errors.reference && (
