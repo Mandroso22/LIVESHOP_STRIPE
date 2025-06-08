@@ -237,15 +237,24 @@ export default function CheckoutPage() {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Erreur lors de la création de la session de paiement");
+        throw new Error(
+          data.details ||
+            data.error ||
+            "Erreur lors de la création de la session de paiement"
+        );
       }
 
-      const { clientSecret: secret } = await response.json();
-      setClientSecret(secret);
+      setClientSecret(data.clientSecret);
     } catch (error) {
-      console.error("Erreur lors du paiement:", error);
-      alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
+      console.error("Erreur détaillée lors du paiement:", error);
+      alert(
+        error instanceof Error
+          ? `Erreur lors du paiement: ${error.message}`
+          : "Une erreur est survenue lors du paiement. Veuillez réessayer."
+      );
     }
   };
 

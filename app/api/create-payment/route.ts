@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { stripe } from "../../lib/stripe";
 
 export async function POST(request: Request) {
+  let body;
   try {
-    const body = await request.json();
+    body = await request.json();
     const {
       amount,
       reference,
@@ -49,13 +50,29 @@ export async function POST(request: Request) {
         email,
       },
       ui_mode: "embedded",
+      return_url: `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return NextResponse.json({ clientSecret: session.client_secret });
   } catch (error) {
-    console.error("Erreur lors de la création de la session Stripe:", error);
+    console.error(
+      "Erreur détaillée lors de la création de la session Stripe:",
+      {
+        error,
+        message: error instanceof Error ? error.message : "Erreur inconnue",
+        stack: error instanceof Error ? error.stack : undefined,
+        body: body, // Log the request body for debugging
+      }
+    );
+
+    // Renvoyer plus de détails sur l'erreur
     return NextResponse.json(
-      { error: "Erreur lors de la création du paiement" },
+      {
+        error: "Erreur lors de la création du paiement",
+        details: error instanceof Error ? error.message : "Erreur inconnue",
+      },
       { status: 500 }
     );
   }
