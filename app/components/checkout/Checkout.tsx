@@ -70,6 +70,13 @@ export default function CheckoutPage() {
       icon: <Truck className="w-5 h-5" />,
     },
     {
+      id: "mondial relay",
+      name: "Mondial Relay",
+      price: "4.90",
+      description: "Livraison en 24h",
+      icon: <MapPin className="w-5 h-5" />,
+    },
+    {
       id: "standard",
       name: "Livraison Standard",
       price: "4.90",
