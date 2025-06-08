@@ -1,9 +1,5 @@
-import dynamic from "next/dynamic";
-
-const SuccessClient = dynamic(() => import("./SuccessClient"), {
-  ssr: false,
-});
+import SuccessWrapper from "./SuccessWrapper";
 
 export default function SuccessPage() {
-  return <SuccessClient />;
+  return <SuccessWrapper />;
 }
