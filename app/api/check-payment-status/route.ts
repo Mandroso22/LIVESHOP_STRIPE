@@ -14,9 +14,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["metadata"],
-    });
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid") {
       try {
