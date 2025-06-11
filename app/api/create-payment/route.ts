@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         ({ value, minLength }) => !value || value.trim().length < minLength
       )
       .map(
-        ({ field, label, minLength }) =>
+        ({ label, minLength }) =>
           `${label} doit contenir au moins ${minLength} caractères`
       );
 
