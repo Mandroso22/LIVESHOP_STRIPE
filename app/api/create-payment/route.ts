@@ -19,6 +19,51 @@ export async function POST(request: Request) {
       tiktokPseudo,
     } = body;
 
+    // Validation des longueurs minimales
+    const validations = [
+      { field: "firstName", value: firstName, minLength: 2, label: "Prénom" },
+      { field: "lastName", value: lastName, minLength: 2, label: "Nom" },
+      {
+        field: "tiktokPseudo",
+        value: tiktokPseudo,
+        minLength: 3,
+        label: "Pseudo TikTok",
+      },
+      { field: "address", value: address, minLength: 5, label: "Adresse" },
+      { field: "city", value: city, minLength: 2, label: "Ville" },
+    ];
+
+    const validationErrors = validations
+      .filter(
+        ({ value, minLength }) => !value || value.trim().length < minLength
+      )
+      .map(
+        ({ field, label, minLength }) =>
+          `${label} doit contenir au moins ${minLength} caractères`
+      );
+
+    if (validationErrors.length > 0) {
+      return NextResponse.json(
+        {
+          error: "Validation des données échouée",
+          details: validationErrors,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validation basique de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      return NextResponse.json(
+        {
+          error: "Validation des données échouée",
+          details: ["Format d'email invalide"],
+        },
+        { status: 400 }
+      );
+    }
+
     if (!process.env.NEXT_PUBLIC_BASE_URL) {
       throw new Error(
         "NEXT_PUBLIC_BASE_URL n'est pas définie dans les variables d'environnement"
