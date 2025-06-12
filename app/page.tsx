@@ -10,8 +10,8 @@ export default function Home() {
           "🎁 Offre spéciale : 3 CP à 20€",
           "🚚 Livraison Chronopost / Mondial Relay",
           "💫 Paiement 100% sécurisé",
-          "⭐️ Satisfaction garantie ou remboursé",
-          "📱 Suivez-nous sur TikTok pour plus de lives exclusifs",
+          "⭐️ Satisfaction garantie",
+          "📱 Suivez-nous sur TikTok pour ne pas manquer nos offres en LIVE",
         ]}
         speed={35}
       />
