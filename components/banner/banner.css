@@ -1,0 +1,47 @@
+/* Ajoutez ces styles à votre globals.css ou tailwind.css */
+
+@keyframes scroll-mobile {
+  0% {
+    transform: translate3d(100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+.animate-scroll-mobile {
+  animation: scroll-mobile 25s linear infinite;
+  will-change: transform;
+}
+
+/* Optimisations pour les performances sur mobile */
+@media (max-width: 768px) {
+  .banner-mobile-optimized {
+    /* Réduction des effets coûteux */
+    backdrop-filter: none;
+    background: linear-gradient(
+      90deg,
+      rgba(236, 72, 153, 0.08),
+      rgba(147, 51, 234, 0.08)
+    );
+  }
+
+  /* Désactivation du blur sur mobile si nécessaire */
+  .no-blur-mobile {
+    backdrop-filter: none !important;
+  }
+}
+
+/* Alternative avec transform + CSS custom properties pour plus de contrôle */
+.banner-content-smooth {
+  animation: banner-scroll var(--duration, 20s) linear infinite;
+}
+
+@keyframes banner-scroll {
+  from {
+    transform: translate3d(100vw, 0, 0);
+  }
+  to {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
